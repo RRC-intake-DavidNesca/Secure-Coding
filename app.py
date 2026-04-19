@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import sqlite3
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
+from typing import Any, Callable
 
 from flask import Flask, flash, redirect, render_template, request, send_file, session, url_for
 
@@ -21,6 +23,31 @@ def get_db_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def login_required(view: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(view)
+    def wrapped(*args: Any, **kwargs: Any):
+        if "user_id" not in session:
+            flash("Please log in first.")
+            return redirect(url_for("login"))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+def admin_required(view: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(view)
+    def wrapped(*args: Any, **kwargs: Any):
+        if "user_id" not in session:
+            flash("Please log in first.")
+            return redirect(url_for("login"))
+        if not session.get("is_admin"):
+            flash("You do not have permission to view this page.")
+            return redirect(url_for("dashboard"))
+        return view(*args, **kwargs)
+
+    return wrapped
 
 
 def init_db(reset: bool = False) -> None:
@@ -100,7 +127,11 @@ def init_db(reset: bool = False) -> None:
 
 @app.context_processor
 def inject_user() -> dict[str, object]:
-    return {"current_user": session.get("username")}
+    return {
+        "current_user": session.get("username"),
+        "current_user_id": session.get("user_id"),
+        "current_user_is_admin": bool(session.get("is_admin")),
+    }
 
 
 @app.route("/")
@@ -208,12 +239,18 @@ def create_post():
 
 
 @app.route("/notes/<int:user_id>")
+@login_required
 def user_notes(user_id: int):
-    if "user_id" not in session:
-        flash("Please log in first.")
-        return redirect(url_for("login"))
+    viewer_id = session["user_id"]
+    if viewer_id != user_id and not session.get("is_admin"):
+        flash("You can only open your own private notes.")
+        return redirect(url_for("dashboard"))
     conn = get_db_connection()
     owner = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not owner:
+        conn.close()
+        flash("User not found.")
+        return redirect(url_for("dashboard"))
     notes = conn.execute("SELECT * FROM notes WHERE owner_id = ? ORDER BY id DESC", (user_id,)).fetchall()
     conn.close()
     return render_template("notes.html", owner=owner, notes=notes)
@@ -236,6 +273,7 @@ def search():
 
 
 @app.route("/admin")
+@admin_required
 def admin():
     conn = get_db_connection()
     users = conn.execute(
@@ -253,6 +291,7 @@ def admin():
 
 
 @app.route("/debug-info")
+@admin_required
 def debug_info():
     details = {
         "secret_key": app.config["SECRET_KEY"],
@@ -264,6 +303,7 @@ def debug_info():
 
 
 @app.route("/download-backup")
+@admin_required
 def download_backup():
     if not DATABASE.exists():
         init_db()
