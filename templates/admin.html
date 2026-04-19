@@ -2,15 +2,14 @@
 {% block content %}
 <div class="card">
     <h2>Admin dashboard</h2>
-    <p class="muted">This page lists all users and stored passwords.</p>
+    <p class="muted">This page lists member accounts (password hashes are not shown).</p>
     <table>
-        <thead><tr><th>ID</th><th>Username</th><th>Password</th><th>Full name</th><th>Admin</th><th>Notes</th></tr></thead>
+        <thead><tr><th>ID</th><th>Username</th><th>Full name</th><th>Admin</th><th>Notes</th></tr></thead>
         <tbody>
         {% for user in users %}
             <tr>
                 <td>{{ user['id'] }}</td>
                 <td>{{ user['username'] }}</td>
-                <td>{{ user['password'] }}</td>
                 <td>{{ user['full_name'] }}</td>
                 <td>{{ user['is_admin'] }}</td>
                 <td>{{ user['note_count'] }}</td>

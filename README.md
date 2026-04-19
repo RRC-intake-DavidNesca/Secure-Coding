@@ -56,6 +56,8 @@ http://127.0.0.1:5000/init-db?reset=1
 
 This deletes the existing `campus_club.db` file when `reset=1` and recreates tables and seed data. The database file is listed in `.gitignore` and should not be committed.
 
+If you already have a local database from an older version of the app (for example before passwords were stored as hashes), run a reset once so the seeded demo accounts match the current code.
+
 ## Demo accounts
 
 | Username | Password   |

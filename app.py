@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from flask import Flask, flash, redirect, render_template, request, send_file, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = BASE_DIR / "campus_club.db"
@@ -98,12 +99,16 @@ def init_db(reset: bool = False) -> None:
 
     user_count = cur.execute("SELECT COUNT(*) FROM users").fetchone()[0]
     if user_count == 0:
+        seed_users = [
+            ("admin", "admin123", "Sam Admin", "Club staff account used for testing.", 1),
+            ("alice", "password123", "Alice Student", "Treasurer for the coding club.", 0),
+            ("bob", "qwerty", "Bob Reviewer", "Enjoys giving peer review comments.", 0),
+        ]
         cur.executemany(
             "INSERT INTO users (username, password, full_name, bio, is_admin) VALUES (?, ?, ?, ?, ?)",
             [
-                ("admin", "admin123", "Sam Admin", "Club staff account used for testing.", 1),
-                ("alice", "password123", "Alice Student", "Treasurer for the coding club.", 0),
-                ("bob", "qwerty", "Bob Reviewer", "Enjoys giving peer review comments.", 0),
+                (u, generate_password_hash(p), fn, bio, adm)
+                for (u, p, fn, bio, adm) in seed_users
             ],
         )
         cur.executemany(
@@ -160,7 +165,7 @@ def register():
             conn = get_db_connection()
             conn.execute(
                 "INSERT INTO users (username, password, full_name, bio) VALUES (?, ?, ?, ?)",
-                (username, password, full_name, bio),
+                (username, generate_password_hash(password), full_name, bio),
             )
             conn.commit()
             conn.close()
@@ -177,12 +182,9 @@ def login():
         username = request.form.get("username", "")
         password = request.form.get("password", "")
         conn = get_db_connection()
-        user = conn.execute(
-            "SELECT * FROM users WHERE username = ? AND password = ?",
-            (username, password),
-        ).fetchone()
+        user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
         conn.close()
-        if user:
+        if user and check_password_hash(user["password"], password):
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["is_admin"] = bool(user["is_admin"])
@@ -281,7 +283,7 @@ def admin():
     conn = get_db_connection()
     users = conn.execute(
         """
-        SELECT users.id, users.username, users.password, users.full_name, users.is_admin,
+        SELECT users.id, users.username, users.full_name, users.is_admin,
                COUNT(notes.id) AS note_count
         FROM users
         LEFT JOIN notes ON notes.owner_id = users.id
