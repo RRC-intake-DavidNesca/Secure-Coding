@@ -1,0 +1,71 @@
+Run started:2026-04-19 09:30:56.010614+00:00
+
+Test results:
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'club-portal-dev-secret'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html
+   Location: .\app.py:15:11
+14	# Intentionally insecure values for a security-audit practice project.
+15	app.config["SECRET_KEY"] = "club-portal-dev-secret"
+16	app.config["SESSION_COOKIE_HTTPONLY"] = False
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\app.py:149:16
+148	        conn = get_db_connection()
+149	        query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+150	        user = conn.execute(query).fetchone()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\app.py:229:12
+228	        query = (
+229	            "SELECT posts.id, posts.title, posts.content, users.username "
+230	            "FROM posts JOIN users ON users.id = posts.owner_id "
+231	            f"WHERE posts.title LIKE '%{term}%' OR posts.content LIKE '%{term}%'"
+232	        )
+
+--------------------------------------------------
+>> Issue: [B201:flask_debug_true] A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.
+   Severity: High   Confidence: Medium
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b201_flask_debug_true.html
+   Location: .\app.py:282:4
+281	    init_db()
+282	    app.run(debug=True, host="0.0.0.0", port=5000)
+
+--------------------------------------------------
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: .\app.py:282:29
+281	    init_db()
+282	    app.run(debug=True, host="0.0.0.0", port=5000)
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 237
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 1
+		Medium: 3
+		High: 1
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 2
+		Medium: 3
+		High: 0
+Files skipped (0):

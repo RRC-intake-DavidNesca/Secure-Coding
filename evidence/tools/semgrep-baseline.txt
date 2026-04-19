@@ -1,0 +1,210 @@
+﻿               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 23 files tracked by git with 1059 Code rules:
+                                                                                
+  Language      Rules   Files          Origin      Rules                        
+ ─────────────────────────────        ───────────────────                       
+  <multilang>      60      23          Community    1059                        
+  html              1       9                                                   
+  python          243       1                                                   
+  yaml             31       1                                                   
+                                                                                
+                    
+                    
+┌──────────────────┐
+│ 13 Code Findings │
+└──────────────────┘
+          
+    app.py
+   ❯❯❱ python.flask.security.audit.hardcoded-  
+       config.avoid_hardcoded_config_SECRET_KEY
+          ❰❰ Blocking ❱❱
+          Hardcoded variable `SECRET_KEY` detected. Use environment
+          variables or config files instead                        
+          Details: https://sg.run/Ekde                             
+                                                                   
+           15┆ app.config["SECRET_KEY"] = "club-portal-dev-secret"
+   
+    ❯❱ python.django.security.injection.sql.sql-injection-using-db-cursor-
+       execute.sql-injection-db-cursor-execute                            
+          ❰❰ Blocking ❱❱
+          User-controlled data from a request is passed to         
+          'execute()'. This could lead to a SQL injection and      
+          therefore protected information could be leaked. Instead,
+          use django's QuerySets, which are built with query       
+          parameterization and therefore not vulnerable to sql     
+          injection. For example, you could use                    
+          `Entry.objects.filter(date=2006)`.                       
+          Details: https://sg.run/qx7y                             
+                                                                   
+          146┆ username = request.form.get("username", "")
+          147┆ password = request.form.get("password", "")
+          148┆ conn = get_db_connection()
+          149┆ query = f"SELECT * FROM users WHERE username =
+               '{username}' AND password = '{password}'"     
+          150┆ user = conn.execute(query).fetchone()
+            ⋮┆----------------------------------------
+          147┆ password = request.form.get("password", "")
+          148┆ conn = get_db_connection()
+          149┆ query = f"SELECT * FROM users WHERE username =
+               '{username}' AND password = '{password}'"     
+          150┆ user = conn.execute(query).fetchone()
+   
+   ❯❯❱ python.django.security.injection.tainted-sql-string.tainted-sql-string
+          ❰❰ Blocking ❱❱
+          Detected user input used to manually construct a SQL string.
+          This is usually bad practice because manual construction    
+          could accidentally result in a SQL injection. An attacker   
+          could use a SQL injection to steal or modify contents of the
+          database. Instead, use a parameterized query which is       
+          available by default in most database engines.              
+          Alternatively, consider using the Django object-relational  
+          mappers (ORM) instead of raw SQL queries.                   
+          Details: https://sg.run/PbZp                                
+                                                                      
+          149┆ query = f"SELECT * FROM users WHERE username =
+               '{username}' AND password = '{password}'"     
+   
+   ❯❯❱ python.flask.security.injection.tainted-sql-string.tainted-sql-string
+          ❰❰ Blocking ❱❱
+          Detected user input used to manually construct a SQL string.
+          This is usually bad practice because manual construction    
+          could accidentally result in a SQL injection. An attacker   
+          could use a SQL injection to steal or modify contents of the
+          database. Instead, use a parameterized query which is       
+          available by default in most database engines.              
+          Alternatively, consider using an object-relational mapper   
+          (ORM) such as SQLAlchemy which will protect your queries.   
+          Details: https://sg.run/JxZj                                
+                                                                      
+          149┆ query = f"SELECT * FROM users WHERE username =
+               '{username}' AND password = '{password}'"     
+   
+    ❯❱ python.lang.security.audit.formatted-sql-query.formatted-sql-query
+          ❰❰ Blocking ❱❱
+          Detected possible formatted SQL query. Use parameterized
+          queries instead.                                        
+          Details: https://sg.run/EkWw                            
+                                                                  
+          150┆ user = conn.execute(query).fetchone()
+   
+   ❯❯❱ python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-
+       execute-raw-query                                                  
+          ❰❰ Blocking ❱❱
+          Avoiding SQL string concatenation: untrusted input          
+          concatenated with raw SQL query can result in SQL Injection.
+          In order to execute raw query safely, prepared statement    
+          should be used. SQLAlchemy provides TextualSQL to easily    
+          used prepared statement with named parameters. For complex  
+          SQL composition, use SQL Expression Language or Schema      
+          Definition Language. In most cases, SQLAlchemy ORM will be a
+          better option.                                              
+          Details: https://sg.run/2b1L                                
+                                                                      
+          150┆ user = conn.execute(query).fetchone()
+   
+    ❯❱ python.flask.security.audit.app-run-param-
+       config.avoid_app_run_with_bad_host        
+          ❰❰ Blocking ❱❱
+          Running flask app with host 0.0.0.0 could expose the server
+          publicly.                                                  
+          Details: https://sg.run/eLby                               
+                                                                     
+          282┆ app.run(debug=True, host="0.0.0.0", port=5000)
+   
+    ❯❱ python.flask.security.audit.debug-enabled.debug-enabled
+          ❰❰ Blocking ❱❱
+          Detected Flask app with debug=True. Do not deploy to       
+          production with this flag enabled as it will leak sensitive
+          information. Instead, consider using Flask configuration   
+          variables or setting 'debug' using system environment      
+          variables.                                                 
+          Details: https://sg.run/dKrd                               
+                                                                     
+          282┆ app.run(debug=True, host="0.0.0.0", port=5000)
+                            
+    templates\dashboard.html
+    ❯❱ python.django.security.django-no-csrf-token.django-no-csrf-token
+          ❰❰ Blocking ❱❱
+          Manually-created forms in django templates should specify a
+          csrf_token to prevent CSRF attacks.                        
+          Details: https://sg.run/N0Bp                               
+                                                                     
+            9┆ <form method="post">
+           10┆     <label>Title</label>
+           11┆     <input name="title" required>
+           12┆     <label>Body</label>
+           13┆     <textarea name="body" rows="4"
+               required></textarea>              
+           14┆     <button type="submit">Save note</button>
+           15┆ </form>
+                        
+    templates\index.html
+    ❯❱ python.django.security.django-no-csrf-token.django-no-csrf-token
+          ❰❰ Blocking ❱❱
+          Manually-created forms in django templates should specify a
+          csrf_token to prevent CSRF attacks.                        
+          Details: https://sg.run/N0Bp                               
+                                                                     
+           11┆ <form method="post" action="{{
+               url_for('create_post') }}">   
+           12┆     <label>Title</label>
+           13┆     <input name="title" required>
+           14┆     <label>Content</label>
+           15┆     <textarea name="content" rows="4"
+               required></textarea>                 
+           16┆     <button type="submit">Post</button>
+           17┆ </form>
+                        
+    templates\login.html
+    ❯❱ python.django.security.django-no-csrf-token.django-no-csrf-token
+          ❰❰ Blocking ❱❱
+          Manually-created forms in django templates should specify a
+          csrf_token to prevent CSRF attacks.                        
+          Details: https://sg.run/N0Bp                               
+                                                                     
+            5┆ <form method="post">
+            6┆     <label>Username</label>
+            7┆     <input name="username" required>
+            8┆     <label>Password</label>
+            9┆     <input type="password" name="password"
+               required>                                 
+           10┆     <button type="submit">Login</button>
+           11┆ </form>
+                           
+    templates\register.html
+    ❯❱ python.django.security.django-no-csrf-token.django-no-csrf-token
+          ❰❰ Blocking ❱❱
+          Manually-created forms in django templates should specify a
+          csrf_token to prevent CSRF attacks.                        
+          Details: https://sg.run/N0Bp                               
+                                                                     
+            5┆ <form method="post">
+            6┆     <label>Username</label>
+            7┆     <input name="username" required>
+            8┆     <label>Password</label>
+            9┆     <input type="password" name="password"
+               required>                                 
+           10┆     <label>Full name</label>
+           11┆     <input name="full_name" required>
+           12┆     <label>Bio</label>
+           13┆     <textarea name="bio" rows="4"></textarea>
+           14┆     <button type="submit">Register</button>
+             [hid 1 additional lines, adjust with --max-lines-per-finding] 
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 13 (13 blocking)
+ • Rules run: 334
+ • Targets scanned: 23
+ • Parsed lines: ~100.0%
+ • Scan was limited to files tracked by git
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 334 rules on 23 files: 13 findings.
+

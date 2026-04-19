@@ -9,6 +9,7 @@
 <div class="card">
     <h3>Create a public post</h3>
     <form method="post" action="{{ url_for('create_post') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>Title</label>
         <input name="title" required>
         <label>Content</label>
@@ -20,7 +21,7 @@
 {% for post in posts %}
 <div class="card">
     <h3>{{ post['title'] }}</h3>
-    <div>{{ post['content'] | safe }}</div>
+    <div>{{ post['content'] }}</div>
     <p class="muted">Posted by {{ post['username'] }} on {{ post['created_at'] }}</p>
 </div>
 {% else %}

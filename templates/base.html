@@ -25,9 +25,11 @@
     <nav>
         <a href="{{ url_for('index') }}">Home</a>
         <a href="{{ url_for('search') }}">Search</a>
+        {% if current_user_is_admin %}
         <a href="{{ url_for('admin') }}">Admin</a>
         <a href="{{ url_for('debug_info') }}">Debug</a>
         <a href="{{ url_for('download_backup') }}">Backup</a>
+        {% endif %}
         {% if current_user %}
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
             <span>Signed in as {{ current_user }}</span>

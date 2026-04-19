@@ -2,15 +2,14 @@
 {% block content %}
 <div class="card">
     <h2>Admin dashboard</h2>
-    <p class="muted">This page lists all users and stored passwords.</p>
+    <p class="muted">This page lists member accounts (password hashes are not shown).</p>
     <table>
-        <thead><tr><th>ID</th><th>Username</th><th>Password</th><th>Full name</th><th>Admin</th><th>Notes</th></tr></thead>
+        <thead><tr><th>ID</th><th>Username</th><th>Full name</th><th>Admin</th><th>Notes</th></tr></thead>
         <tbody>
         {% for user in users %}
             <tr>
                 <td>{{ user['id'] }}</td>
                 <td>{{ user['username'] }}</td>
-                <td>{{ user['password'] }}</td>
                 <td>{{ user['full_name'] }}</td>
                 <td>{{ user['is_admin'] }}</td>
                 <td>{{ user['note_count'] }}</td>
@@ -18,5 +17,19 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
+<div class="card">
+    <h3>Database</h3>
+    <p class="muted">These actions require an administrator. Full reset deletes the local database file and reapplies the demo seed data.</p>
+    <form method="post" action="{{ url_for('setup_database') }}" style="margin-bottom:12px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="reset" value="0">
+        <button type="submit">Ensure tables exist (keep current data)</button>
+    </form>
+    <form method="post" action="{{ url_for('setup_database') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="reset" value="1">
+        <button type="submit">Reset database and re-seed demo data</button>
+    </form>
 </div>
 {% endblock %}

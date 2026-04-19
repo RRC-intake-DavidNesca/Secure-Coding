@@ -2,11 +2,14 @@
 {% block content %}
 <div class="card">
     <h2>Your private notes</h2>
-    <p class="muted">Try opening <code>/notes/1</code>, <code>/notes/2</code>, or <code>/notes/3</code> after login.</p>
+    {% if current_user_id %}
+    <p class="muted">Full list view: <a href="{{ url_for('user_notes', user_id=current_user_id) }}">My notes page</a></p>
+    {% endif %}
 </div>
 <div class="card">
     <h3>Add private note</h3>
     <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>Title</label>
         <input name="title" required>
         <label>Body</label>
