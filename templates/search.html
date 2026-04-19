@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Search posts</h2>
+    <form method="get">
+        <label>Keyword</label>
+        <input name="q" value="{{ term }}">
+        <button type="submit">Search</button>
+    </form>
+    {% if term %}
+        <p>Showing results for: <strong>{{ term | safe }}</strong></p>
+    {% endif %}
+</div>
+{% for row in results %}
+<div class="card">
+    <h3>{{ row['title'] }}</h3>
+    <div>{{ row['content'] | safe }}</div>
+    <p class="muted">By {{ row['username'] }}</p>
+</div>
+{% else %}
+    {% if term %}<div class="card"><p>No results found.</p></div>{% endif %}
+{% endfor %}
+{% endblock %}

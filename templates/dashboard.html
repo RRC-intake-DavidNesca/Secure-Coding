@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Your private notes</h2>
+    <p class="muted">Try opening <code>/notes/1</code>, <code>/notes/2</code>, or <code>/notes/3</code> after login.</p>
+</div>
+<div class="card">
+    <h3>Add private note</h3>
+    <form method="post">
+        <label>Title</label>
+        <input name="title" required>
+        <label>Body</label>
+        <textarea name="body" rows="4" required></textarea>
+        <button type="submit">Save note</button>
+    </form>
+</div>
+{% for note in notes %}
+<div class="card">
+    <h3>{{ note['title'] }}</h3>
+    <div>{{ note['body'] }}</div>
+    <p class="muted">Created {{ note['created_at'] }}</p>
+</div>
+{% else %}
+<div class="card"><p>No notes yet.</p></div>
+{% endfor %}
+{% endblock %}

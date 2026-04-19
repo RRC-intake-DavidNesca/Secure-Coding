@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <h2>Notes for {{ owner['full_name'] if owner else 'Unknown user' }}</h2>
+    {% if owner %}<p class="muted">Username: {{ owner['username'] }}</p>{% endif %}
+</div>
+{% for note in notes %}
+<div class="card">
+    <h3>{{ note['title'] }}</h3>
+    <div>{{ note['body'] }}</div>
+    <p class="muted">Created {{ note['created_at'] }}</p>
+</div>
+{% else %}
+<div class="card"><p>No notes found.</p></div>
+{% endfor %}
+{% endblock %}
