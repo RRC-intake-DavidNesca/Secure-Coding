@@ -177,8 +177,10 @@ def login():
         username = request.form.get("username", "")
         password = request.form.get("password", "")
         conn = get_db_connection()
-        query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
-        user = conn.execute(query).fetchone()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ? AND password = ?",
+            (username, password),
+        ).fetchone()
         conn.close()
         if user:
             session["user_id"] = user["id"]
@@ -262,12 +264,13 @@ def search():
     results = []
     if term:
         conn = get_db_connection()
-        query = (
+        like = f"%{term}%"
+        results = conn.execute(
             "SELECT posts.id, posts.title, posts.content, users.username "
             "FROM posts JOIN users ON users.id = posts.owner_id "
-            f"WHERE posts.title LIKE '%{term}%' OR posts.content LIKE '%{term}%'"
-        )
-        results = conn.execute(query).fetchall()
+            "WHERE posts.title LIKE ? OR posts.content LIKE ?",
+            (like, like),
+        ).fetchall()
         conn.close()
     return render_template("search.html", results=results, term=term)
 
