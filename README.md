@@ -58,13 +58,9 @@ http://127.0.0.1:5000
 
 ## Database reset
 
-If you need a clean database with the seeded demo users again, visit (local use only):
+Sign in as an **administrator**, open **Admin**, and use **Reset database and re-seed demo data** (POST with CSRF protection). That deletes the existing `campus_club.db` file and recreates tables and seed data. **Ensure tables exist** runs `CREATE TABLE IF NOT EXISTS` without deleting data.
 
-```text
-http://127.0.0.1:5000/init-db?reset=1
-```
-
-This deletes the existing `campus_club.db` file when `reset=1` and recreates tables and seed data. The database file is listed in `.gitignore` and should not be committed.
+The database file is listed in `.gitignore` and should not be committed.
 
 If you already have a local database from an older version of the app (for example before passwords were stored as hashes), run a reset once so the seeded demo accounts match the current code.
 
