@@ -8,13 +8,13 @@
         <button type="submit">Search</button>
     </form>
     {% if term %}
-        <p>Showing results for: <strong>{{ term | safe }}</strong></p>
+        <p>Showing results for: <strong>{{ term }}</strong></p>
     {% endif %}
 </div>
 {% for row in results %}
 <div class="card">
     <h3>{{ row['title'] }}</h3>
-    <div>{{ row['content'] | safe }}</div>
+    <div>{{ row['content'] }}</div>
     <p class="muted">By {{ row['username'] }}</p>
 </div>
 {% else %}
