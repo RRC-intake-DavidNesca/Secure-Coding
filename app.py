@@ -395,12 +395,8 @@ def admin():
 @app.route("/debug-info")
 @admin_required
 def debug_info():
-    if os.environ.get("SECRET_KEY"):
-        secret_desc = "Loaded from SECRET_KEY environment variable."
-    else:
-        secret_desc = "Generated for this process; set SECRET_KEY for a stable value across restarts."
     details = {
-        "secret_key": secret_desc,
+        "key_source": "environment" if os.environ.get("SECRET_KEY") else "generated",
         "database": str(DATABASE),
         "session": dict(session),
         "debug_mode": app.debug,
