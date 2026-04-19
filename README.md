@@ -46,6 +46,16 @@ Open the app in a browser:
 http://127.0.0.1:5000
 ```
 
+### Optional environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY` | Signing key for sessions and CSRF tokens. If unset, a random key is generated each time the process starts (sessions reset on restart). |
+| `FLASK_DEBUG` | Set to `1` or `true` to enable Flask’s debug mode and interactive debugger (do not use on a public server). Default is off. |
+| `FLASK_RUN_HOST` | Bind address (default `127.0.0.1`). |
+| `FLASK_RUN_PORT` | Port (default `5000`). |
+| `SESSION_COOKIE_SECURE` | Set to `true` when serving the app only over HTTPS so browsers send the session cookie on secure connections only. |
+
 ## Database reset
 
 If you need a clean database with the seeded demo users again, visit (local use only):

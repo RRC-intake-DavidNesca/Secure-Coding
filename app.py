@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import secrets
 import sqlite3
 from datetime import datetime
 from functools import wraps
@@ -7,6 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from flask import Flask, flash, redirect, render_template, request, send_file, session, url_for
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -14,10 +17,17 @@ DATABASE = BASE_DIR / "campus_club.db"
 
 app = Flask(__name__)
 
-# Intentionally insecure values for a security-audit practice project.
-app.config["SECRET_KEY"] = "club-portal-dev-secret"
-app.config["SESSION_COOKIE_HTTPONLY"] = False
-app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["WTF_CSRF_TIME_LIMIT"] = None
+
+csrf = CSRFProtect(app)
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -298,11 +308,15 @@ def admin():
 @app.route("/debug-info")
 @admin_required
 def debug_info():
+    if os.environ.get("SECRET_KEY"):
+        secret_desc = "Loaded from SECRET_KEY environment variable."
+    else:
+        secret_desc = "Generated for this process; set SECRET_KEY for a stable value across restarts."
     details = {
-        "secret_key": app.config["SECRET_KEY"],
+        "secret_key": secret_desc,
         "database": str(DATABASE),
         "session": dict(session),
-        "debug_mode": True,
+        "debug_mode": app.debug,
     }
     return render_template("debug.html", details=details)
 
@@ -324,4 +338,7 @@ def setup_database():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    _debug = os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
+    _host = os.environ.get("FLASK_RUN_HOST", "127.0.0.1")
+    _port = int(os.environ.get("FLASK_RUN_PORT", "5000"))
+    app.run(debug=_debug, host=_host, port=_port)

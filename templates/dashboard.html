@@ -9,6 +9,7 @@
 <div class="card">
     <h3>Add private note</h3>
     <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>Title</label>
         <input name="title" required>
         <label>Body</label>
